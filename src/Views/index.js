@@ -1,6 +1,6 @@
 import React from "react";
 
-import List from './Views/List/List.js'
+import List from './List/List.js'
 
 export default class Routes {
 

@@ -1,0 +1,73 @@
+.st-new-layout-tabs{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  &-list{
+    flex: 1;
+    .full-height-scroll{
+      .ReactVirtualized__Grid__innerScrollContainer{
+        height: 100%!important;
+        max-height: 100%!important;
+      }
+    }
+  }
+}
+.prospect-list {
+  display: block;
+  background-color: red;
+  height: inherit;
+  overflow: auto;
+}
+
+.st-panel-row{
+  &._ghost{
+    .ghost{
+      display: flex;
+      height: 16px;
+      width: 100%;
+      border-radius: 3px;
+      background: linear-gradient(270deg, rgba(230, 227, 227, 0.4), rgba(189, 187, 187, 0.5), rgba(230, 227, 227, 0.5), rgba(189, 187, 187, 0.4));
+      background-size: 350% 350%;
+      animation: colors 5s ease-in-out infinite;
+      &.ghost_logo{
+        min-height: 28px;
+        min-width: 28px;
+        max-width: 28px;
+        border-radius: 50%;
+        margin-right: 16px;
+      }
+    }
+    .st-prospect__col._no_pd{
+      padding-right: 0px;
+      justify-content: flex-start;
+      max-width: 42px;
+      .ghost.ghost_logo{
+        margin-right: 0px;
+      }
+    }
+    .st-panel-row__actions{
+      &._popover{
+        .ghost{
+          border-radius: 3px;
+          width: 26px;
+          height: 21px;
+        }
+      }
+      .ghost{
+        height: 30px;
+        border-radius: 40%;
+      }
+    }
+  }
+}
+.loading{
+	position: absolute;
+  background: rgba(255, 255, 255, 0.85);
+  z-index: 9;
+  height: 100%;
+  width: 100%;
+  top: 0px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
