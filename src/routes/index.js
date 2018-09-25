@@ -1,6 +1,6 @@
 import React from "react";
 
-import List from './List/List.js'
+import Chat from './Chat/Chat.js'
 
 export default class Routes {
 
@@ -14,11 +14,11 @@ export default class Routes {
       },
       {
         path: "/:chat",
-        component: List,
+        component: Chat,
       },
       {
         path: "/:chat/:messageId",
-        component: List,
+        component: Chat,
       },
     ];
 

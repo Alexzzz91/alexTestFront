@@ -1,29 +1,7 @@
 import React from "react";
 
-import List from './Views/List/List.js'
+import Routes from './routes/index.js'
 
-export default class Routes {
+import './styles/main.scss'
 
-  apply(routeHandler) {
-
-    const routes = [
-      {
-        path: "/",
-        exact: true,
-        component: () => <h1>Hello, World!</h1>,
-      },
-      {
-        path: "/:chat",
-        component: List,
-      },
-      {
-        path: "/:chat/:messageId",
-        component: List,
-      },
-    ];
-
-    routeHandler.hooks.initRoutes.tapPromise("AppRoutes", async () => {
-      routeHandler.addRoutes(routes);
-    });
-  }
-}
+export default Routes

@@ -1,0 +1,23 @@
+.body{
+  height: 100%;
+  width: 100%;
+  grid-gap: 10px;
+  display: grid;
+  grid-template-areas: "rightMenu  main";
+  grid-template-columns: 200px auto;
+  &__content{
+    display: flex;
+    width: 100%;
+    grid-area: main;
+  }
+}
+.RightMenu{
+  grid-area: rightMenu;
+}
+.Menu{
+  padding: 40px 8px;
+  &Item{
+    cursor: pointer;
+    padding: 8px 16px;
+  }
+}

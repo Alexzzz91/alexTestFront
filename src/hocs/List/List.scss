@@ -1,14 +1,12 @@
-.st-new-layout-tabs{
-  display: flex;
-  flex-direction: column;
+.list{
   width: 100%;
-  &-list{
-    flex: 1;
-    .full-height-scroll{
-      .ReactVirtualized__Grid__innerScrollContainer{
-        height: 100%!important;
-        max-height: 100%!important;
-      }
+  height: 100%;
+  position: relative;
+  flex: 1;
+  .full-height-scroll{
+    .ReactVirtualized__Grid__innerScrollContainer{
+      height: 100%!important;
+      max-height: 100%!important;
     }
   }
 }

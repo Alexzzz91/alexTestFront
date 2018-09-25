@@ -1,11 +1,16 @@
 import React, { PureComponent } from 'react'
 import cn from 'classnames'
+import _ from 'lodash'
 import { InfiniteLoader, List, AutoSizer, Table } from 'react-virtualized'
 import DefaultGhostRow from './DefaultGhost'
 
 const ROW_HEIGH = 56;
 
-import './List.scss'
+import s from  './List.scss'
+
+  console.log(s);
+
+const ChatContext = React.createContext();
 
 class CommonList extends PureComponent {
   isRowLoaded (index) {
@@ -24,7 +29,6 @@ class CommonList extends PureComponent {
 
   getRowCount(){
     const { entities, total, loading, limit=20 } = this.props
-
     let count = Math.min(entities.length + 1, total || 0);
 
     if(!!entities.length && loading){
@@ -90,38 +94,46 @@ class CommonList extends PureComponent {
   }
 
   render() {
-    const { entities, scrollTop, className = 'st-new-layout-tabs-list', rowHeight = ROW_HEIGH} = this.props;
+    const { entities, scrollTop, className = s.list, rowHeight = ROW_HEIGH} = this.props;
+
     const rowCount = this.getRowCount();
 
     const getHeight = _.isFunction(rowHeight) ? rowHeight : () => rowHeight
 
     return(
-      <div className={className}>
-        <InfiniteLoader isRowLoaded={({index}) => this.isRowLoaded(index)}
-                        loadMoreRows={(e) => this.loadMoreRows(e)}
-                        rowCount={rowCount}
-        >
-          {({onRowsRendered, registerChild}) => (
-            <AutoSizer>
-              {({ height, width }) => (
-                <List height={height}
-                      className={ cn('', { "full-height-scroll": height > this.getFullHeigt(rowCount) }) }
-                      onRowsRendered={onRowsRendered}
-                      ref={registerChild}
-                      overscanRowCount={10}
-                      rowCount={rowCount}
-                      onScroll={(e)=> this.onScroll(e)}
-                      rowHeight={({index}) => getHeight(entities[index])}
-                      scrollTop={scrollTop}
-                      rowRenderer={(e) => this.rowRenderer(e)}
-                      noRowsRenderer={() => this.noRowsRenderer()}
-                      width={width}
-                />
-              )}
-            </AutoSizer>
-          )}
-        </InfiniteLoader>
-      </div>
+      <ChatContext.Consumer>
+        {v => {
+          console.log('v', v);
+          return(
+            <div className={className}>
+              <InfiniteLoader isRowLoaded={({index}) => this.isRowLoaded(index)}
+                              loadMoreRows={(e) => this.loadMoreRows(e)}
+                              rowCount={rowCount}
+              >
+                {({onRowsRendered, registerChild}) => (
+                  <AutoSizer>
+                    {({ height, width }) => (
+                      <List height={height}
+                            className={ cn('', { "full-height-scroll": height > this.getFullHeigt(rowCount) }) }
+                            onRowsRendered={onRowsRendered}
+                            ref={registerChild}
+                            overscanRowCount={10}
+                            rowCount={rowCount}
+                            onScroll={(e)=> this.onScroll(e)}
+                            rowHeight={({index}) => getHeight(entities[index])}
+                            scrollTop={scrollTop}
+                            rowRenderer={(e) => this.rowRenderer(e)}
+                            noRowsRenderer={() => this.noRowsRenderer()}
+                            width={width}
+                      />
+                    )}
+                  </AutoSizer>
+                )}
+              </InfiniteLoader>
+            </div>
+          )
+        }}
+      </ChatContext.Consumer>
     )
   }
 }

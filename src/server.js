@@ -1,1 +1,5 @@
-export default class Server {}
+export default class Server {
+  constructor(props) {
+    console.log(this);
+  }
+}
