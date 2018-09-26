@@ -4,11 +4,9 @@ import _ from 'lodash'
 import { InfiniteLoader, List, AutoSizer, Table } from 'react-virtualized'
 import DefaultGhostRow from './DefaultGhost'
 
-const ROW_HEIGH = 56;
+const ROW_HEIGH = 106;
 
 import s from  './List.scss'
-
-  console.log(s);
 
 const ChatContext = React.createContext();
 
@@ -117,7 +115,7 @@ class CommonList extends PureComponent {
                             className={ cn('', { "full-height-scroll": height > this.getFullHeigt(rowCount) }) }
                             onRowsRendered={onRowsRendered}
                             ref={registerChild}
-                            overscanRowCount={10}
+                            overscanRowCount={Math.ceil(height/ROW_HEIGH)}
                             rowCount={rowCount}
                             onScroll={(e)=> this.onScroll(e)}
                             rowHeight={({index}) => getHeight(entities[index])}

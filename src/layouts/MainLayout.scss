@@ -5,9 +5,10 @@
   display: grid;
   grid-template-areas: "rightMenu  main";
   grid-template-columns: 200px auto;
-  &__content{
+  &Content{
     display: flex;
     width: 100%;
+    position: relative;
     grid-area: main;
   }
 }
@@ -15,6 +16,10 @@
   grid-area: rightMenu;
 }
 .Menu{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
   padding: 40px 8px;
   &Item{
     cursor: pointer;

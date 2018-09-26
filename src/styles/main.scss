@@ -4,5 +4,15 @@
     margin: 0;
     width: 100vw;
     height: 100vh;
+    overflow: hidden;
+  }
+  .Pleloader{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width:100%;
+    text-align: center;
+    padding: 16px;
+    background: linear-gradient(to bottom, white 90%, transparent);
   }
 }

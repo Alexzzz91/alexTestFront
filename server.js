@@ -32,14 +32,15 @@ app.get('/chats', function (req, res) {
 });
 
 app.post('/get_messages', function (req, res) {
-  const { chat } = req.body;
+  const { chat, offset=0, limit=40 } = req.body;
   // Load client secrets from a local file.
   fs.readFile('fakeData.json', (err, content) => {
     if (err) return console.log('load file:', err);
     // Authorize a client with credentials, then call the Google Sheets API.
     content = JSON.parse(content);
     let r = _.find(content.chats, { name: chat });
-    const messages = r.messages.slice(0, 20);
+    if(!r) return console.log('cannot find chat!');
+    const messages = r.messages.slice(offset, offset+limit);
     res.send({messages, total: r.messages.length});
   });
 
@@ -48,23 +49,24 @@ app.post('/get_messages', function (req, res) {
 
 const getRandomInt = (min, max) => Math.floor(Math.random() * (max - min)) + min;
 
-const createMessages = () => {
+async function createMessages(){
   const worldsText = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer vehicula odio odio, eu finibus est iaculis vel. Quisque consequat molestie odio non viverra. Duis egestas arcu vel mauris aliquam faucibus id ut nibh. Cras nec nisl ut turpis feugiat dapibus. In sagittis scelerisque ullamcorper. Fusce vel elit enim. Vestibulum mollis ipsum nisi, id auctor augue mattis et. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Donec pellentesque felis ut elit lobortis rhoncus. Sed augue ante, iaculis sit amet tristique at, auctor eget mauris. Suspendisse venenatis nisl et risus porta lacinia. Mauris nibh urna, sollicitudin a hendrerit vitae, gravida eu quam. Donec commodo mattis tincidunt. Curabitur sit amet gravida sapien. Duis efficitur quam vel libero porttitor, quis hendrerit quam venenatis. Donec malesuada velit eu nisi ullamcorper, quis facilisis orci sodales. Quisque mollis pretium nulla at aliquet. In hac habitasse platea dictumst. Aenean varius dui purus, sit amet pellentesque ipsum posuere nec. Cras diam elit, tincidunt nec libero eget, interdum aliquet tortor. Vivamus id leo sed ligula pretium finibus varius nec metus. Duis tortor turpis, varius sit amet convallis et, molestie sed ligula. Suspendisse consectetur consectetur metus, vitae maximus mauris varius ut. Proin congue urna id malesuada egestas. In vitae ante vitae erat finibus sollicitudin id auctor tortor. Aliquam iaculis dignissim nulla eget condimentum. Ut ut urna eget risus luctus maximus. Pellentesque nunc mi, tempus sed tempus vitae, auctor tincidunt urna. Nunc ornare, lorem at porttitor tincidunt, dolor risus lobortis mi, ac congue ante nisl sed odio. Quisque eleifend sollicitudin blandit. Aenean consectetur orci velit, quis porttitor ligula fermentum in. Nullam imperdiet semper ipsum nec varius. Nulla eget ex sit amet ligula tincidunt auctor. Etiam lectus ex, sollicitudin vel bibendum et, pharetra sed purus. Suspendisse leo neque, consequat id gravida dignissim, congue vel neque. Sed vel elementum nisl. Vestibulum tempus efficitur turpis a sollicitudin. Integer vitae magna fermentum, suscipit risus sed, pretium mauris. Mauris eget nisl ullamcorper, tempor dui ac, fermentum augue. Praesent aliquam commodo blandit. Pellentesque pharetra sapien vel blandit iaculis. Pellentesque id odio a dui tempus scelerisque. Fusce vel cursus justo, et luctus dolor. In dapibus sodales turpis lobortis blandit. Sed hendrerit ut nibh vel lacinia. Mauris dapibus tortor non orci posuere, nec ultrices nisi gravida. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Etiam ac urna aliquet, iaculis tellus ac, accumsan libero. Integer sapien ipsum, sollicitudin id lorem vitae, accumsan commodo turpis. Aliquam et bibendum turpis. Integer cursus pharetra ullamcorper. Integer dictum diam ut commodo fermentum. Pellentesque tincidunt neque non risus tempor, nec elementum mi condimentum. Vivamus a nisl iaculis, rutrum est quis, imperdiet leo.'
-  const worldsArray = worldsText.split(/\s|\,|\./);
+  let worldsArray = worldsText.split(/\s|\,|\./);
+  worldsArray = worldsArray.filter(item => !!item);
 
   let obj = {}
   obj.chats = [];
 
-  for (let i = 0; i < getRandomInt(4, 28); i++) {
-
+  for (let i = 0; i < getRandomInt(4, 8); i++) {
     let el = {
       name: worldsArray[getRandomInt(1, worldsArray.length-1)],
       messages: []
     }
-    for (let j = 0; j < getRandomInt(1, (worldsArray.length-1)*2); j++) {
+    for (let j = 0; j < getRandomInt(worldsArray.length*50, (worldsArray.length-1)*5000000); j++) {
       let msg = {
+        id: j,
         autor: getRandomInt(0, 4) > 2 ? 'alk' : 'no alk',
-        time: moment().format(),
+        time: moment().subtract(j, 'seconds').unix(),
         text: ''
       };
 

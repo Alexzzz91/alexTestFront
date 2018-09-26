@@ -8,7 +8,7 @@ import { ChatContext } from '../Chat'
 const Row = (props) => {
 
   const { style, index } = props;
-  console.log('props', props);
+
   return (
     <ChatContext.Consumer>
         {({messages}) => {

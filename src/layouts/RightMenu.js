@@ -1,6 +1,7 @@
 import React from 'react'
 
 import cn from 'classnames'
+import { Link } from 'react-router-dom'
 
 import s from './MainLayout.scss'
 
@@ -13,7 +14,13 @@ const RightMenu = ({ component: Component, ...rest }) => (
       <div className={s.RightMenu}>
         RightMenu
         <ul className={s.Menu} >
-          {chats.map(item => <li key="item" className={s.MenuItem} onClick={() => selectChat(item)}>{ item }</li> )}
+          {chats.map((item, i) => (
+            <Link to={`/${item}`}
+                  key={i}
+                  className={s.MenuItem}>
+              { item }
+            </Link>
+          ) )}
         </ul>
       </div>
     )

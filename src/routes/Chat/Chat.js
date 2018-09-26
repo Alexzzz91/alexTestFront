@@ -13,37 +13,59 @@ class Chat extends PureComponent {
     super(props);
 
     this.state = {
+      loading: false,
       chats:[],
-      messages: [],
+      messages: {},
       total: null
     };
-    this.loadChat = this.loadChat.bind(this);
-    this.loadChat();
+    this.loadChats = this.loadChats.bind(this);
+    this.loadChats();
+    if(!!props.match.params.chat) this.loadChat(props.match.params.chat)
   }
   componentDidMount(){
     //console.log(this);
   }
-  loadChat(){
+  componentDidUpdate(prevProps){
+    if(prevProps.match.params.chat != this.props.match.params.chat) this.loadChat(this.props.match.params.chat);
+  }
+  loadChats(){
     return axios.get('//localhost:3000/chats')
       .then(({data}) => {
         this.setState({chats:data})
-        this.selectChat(data[0])
+        if(!this.props.match.params.chat){
+          this.loadChat(data[0])
+        }
       })
   }
-  selectChat(chat){
-    axios.post('//localhost:3000/get_messages', {chat})
+  loadChat(chat, offset=0, limit=400){
+    console.log('chat', chat)
+    if(this.state.loading) return;
+    this.setState({loading:true});
+    axios.post('//localhost:3000/get_messages', {chat, limit, offset})
       .then(({data}) => {
         const { messages, total } = data;
-        this.setState({messages, total})
+        let msgs = {};
+        for (var i = messages.length - 1; i >= 0; i--) {
+          msgs[messages[i].id] = messages[i]
+        }
+        const stateMsgs = this.state.messages
+        this.setState({messages: {...stateMsgs, ...msgs}, total, loading:false})
       })
   }
   render() {
     const { match } = this.props;
-    const { chats, messages, total  } = this.state;
+    const { chats, messages, total, loading } = this.state;
+    console.log('messages', messages);
     return(
-      <ChatContext.Provider value={{ chats, messages, total, selectChat:e => this.selectChat(e) }}>
+      <ChatContext.Provider value={{ chats, messages, total }}>
         <MainLayout>
-          <List chatName={match.params.chat} entities={messages} total={messages.length}/>
+          <List chatName={match.params.chat}
+                entities={Object.keys(messages)}
+                total={total}
+                loadMore={() => this.loadChat(match.params.chat, Object.keys(messages).length)}/>
+          {!!loading &&
+            <div className='Pleloader'>Load history...</div>
+          }
         </MainLayout>
       </ChatContext.Provider>
     )

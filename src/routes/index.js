@@ -10,7 +10,7 @@ export default class Routes {
       {
         path: "/",
         exact: true,
-        component: () => <h1>Hello, World!</h1>,
+        component: Chat,
       },
       {
         path: "/:chat",
