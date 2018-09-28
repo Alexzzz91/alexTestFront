@@ -6,6 +6,10 @@
     height: 100vh;
     overflow: hidden;
   }
+  .listContainer{
+    display: flex;
+    flex: 1;
+  }
   .Pleloader{
     position: absolute;
     top: 0;

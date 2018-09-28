@@ -15,10 +15,13 @@ class Chat extends PureComponent {
     this.state = {
       loading: false,
       chats:[],
-      messages: {},
+      rowHeights: {},
+      entities:{},
+      messages: [],
       total: null
     };
     this.loadChats = this.loadChats.bind(this);
+    this.updateRowHeight = this.updateRowHeight.bind(this);
     this.loadChats();
     if(!!props.match.params.chat) this.loadChat(props.match.params.chat)
   }
@@ -37,31 +40,38 @@ class Chat extends PureComponent {
         }
       })
   }
-  loadChat(chat, offset=0, limit=400){
-    console.log('chat', chat)
+  loadChat(chat, offset=0, limit=40){
     if(this.state.loading) return;
     this.setState({loading:true});
     axios.post('//localhost:3000/get_messages', {chat, limit, offset})
       .then(({data}) => {
         const { messages, total } = data;
-        let msgs = {};
+        let msgs = {}, array = []
         for (var i = messages.length - 1; i >= 0; i--) {
-          msgs[messages[i].id] = messages[i]
+          array.push(messages[i]);
+          msgs[messages[i].id+1] = messages[i]
         }
         const stateMsgs = this.state.messages
-        this.setState({messages: {...stateMsgs, ...msgs}, total, loading:false})
+        this.setState({messages: array, entities: {...stateMsgs, ...msgs}, total, loading:false})
       })
+  }
+  updateRowHeight({index, height}){
+    let { rowHeights } = this.state;
+    rowHeights[index]= height;
+    this.setState({rowHeights})
   }
   render() {
     const { match } = this.props;
-    const { chats, messages, total, loading } = this.state;
+    const { chats, messages, entities, total, loading, rowHeights } = this.state;
     console.log('messages', messages);
+
     return(
-      <ChatContext.Provider value={{ chats, messages, total }}>
+      <ChatContext.Provider value={{ chats, messages:entities, total, rowHeights, updateRowHeight:this.updateRowHeight}}>
         <MainLayout>
           <List chatName={match.params.chat}
-                entities={Object.keys(messages)}
+                entities={messages}
                 total={total}
+                rowHeights={rowHeights}
                 loadMore={() => this.loadChat(match.params.chat, Object.keys(messages).length)}/>
           {!!loading &&
             <div className='Pleloader'>Load history...</div>

@@ -1,141 +1,66 @@
 import React, { PureComponent } from 'react'
 import cn from 'classnames'
 import _ from 'lodash'
-import { InfiniteLoader, List, AutoSizer, Table } from 'react-virtualized'
+import VirtualList from '../../common/VirtualList'
 import DefaultGhostRow from './DefaultGhost'
-
-const ROW_HEIGH = 106;
 
 import s from  './List.scss'
 
-const ChatContext = React.createContext();
+const ROW_HEIGH = 106;
 
-class CommonList extends PureComponent {
-  isRowLoaded (index) {
-    const { entities } = this.props;
+const CommonList = (List) => {
+  let CommonVirtualList = VirtualList()(List);
 
-    return entities[index] !== undefined;
-  }
+  return class MyConfigurableList extends PureComponent {
+    constructor(props) {
+      super(props);
 
-  loadMoreRows ({startIndex, stopIndex}) {
-    const { entities, loading, total, loadMore } = this.props;
+      const state = {
+        itemHeight: ROW_HEIGH,
+        contained: false,
+        containerHeight: 0,
+        itemBuffer: 0,
+      };
 
-    if (loading || entities.length == total) return
+      this.state = state;
+      this.container = React.createRef();
+      this.list = React.createRef();
 
-    return loadMore();
-  }
+    };
+    componentDidMount(){
+      CommonVirtualList = VirtualList({container: this.list.current})(List);
+      this.setState({
+        containerHeight:this.container.current.offsetHeight,
+        itemBuffer:(Math.ceil(this.container.current.offsetHeight/ROW_HEIGH))+2,
+      });
 
-  getRowCount(){
-    const { entities, total, loading, limit=20 } = this.props
-    let count = Math.min(entities.length + 1, total || 0);
-
-    if(!!entities.length && loading){
-      let addCount = total - entities.length;
-
-      if (addCount > limit) addCount = limit;
-
-      count = count + (addCount-1);
     }
-    return count;
-  }
-
-  onScroll({clientHeight, scrollHeight, scrollTop}) {
-    this.scrollTop = scrollTop;
-  }
-
-  componentWillUnmount(){
-    const { setScrollTop } = this.props;
-    try {
-      setScrollTop(this.scrollTop);
-    } catch (e) {
-      console.log('tab closed');
+    componentDidUpdate(){
+      if(this.container.current.offsetHeight != this.state.containerHeight){
+        this.setState({containerHeight:this.container.current.offsetHeight});
+      }
+      console.log('componentDidUpdate');
     }
-  }
 
-  rowRenderer ({ key, index, style}) {
-    const { Row, GhostRow, rowProps, entities } = this.props;
-    const entityId = entities[index];
-
-    key =_.isObject(entityId) ? key : entityId;
-
-    return (
-      this.isRowLoaded(index)
-        ?
-          <Row key={key} index={index} id={entityId} style={style} rowProps={rowProps}/>
-        :
-          <GhostRow index={index} key={'ghost_'+index} style={style}/>
-    )
-  }
-  noRowsRenderer(){
-    if(this.props.loading) return
-
-    return (
-      <div className="st-panel-row _flat _no-gap _prospect_row">
-        <div className="st-panel-row__inner">
-          <div className="st-prospect__col _cols _align-center">
-            <span className="st-text _light _dim">No results</span>
+    render() {
+      console.log('this.props', this.props);
+      const { entities, rowHeights } = this.props;
+      return (
+        <div className={s.listContainer} ref={this.container} >
+          <div className={s.list} ref={this.list} style={{ overflow: 'scroll', height: this.state.containerHeight }}>
+            <CommonVirtualList
+              scrollTop={3180}
+              items={entities}
+              itemHeight={this.state.itemHeight}
+              containerHeight={this.state.containerHeight}
+              itemBuffer={this.state.itemBuffer}
+              itemsHeight={rowHeights}
+            />
           </div>
         </div>
-      </div>
-    )
-  }
-  getFullHeigt(rowCount) {
-    const { entities, rowHeight = ROW_HEIGH } = this.props;
+      );
+    };
+  };
+};
 
-    if (_.isFunction(rowHeight)) {
-      return entities.reduce( (height, item) => {
-        return height + rowHeight(item);
-      }, 0)
-    } else {
-      return rowCount * rowHeight;
-    }
-  }
-
-  render() {
-    const { entities, scrollTop, className = s.list, rowHeight = ROW_HEIGH} = this.props;
-
-    const rowCount = this.getRowCount();
-
-    const getHeight = _.isFunction(rowHeight) ? rowHeight : () => rowHeight
-
-    return(
-      <ChatContext.Consumer>
-        {v => {
-          console.log('v', v);
-          return(
-            <div className={className}>
-              <InfiniteLoader isRowLoaded={({index}) => this.isRowLoaded(index)}
-                              loadMoreRows={(e) => this.loadMoreRows(e)}
-                              rowCount={rowCount}
-              >
-                {({onRowsRendered, registerChild}) => (
-                  <AutoSizer>
-                    {({ height, width }) => (
-                      <List height={height}
-                            className={ cn('', { "full-height-scroll": height > this.getFullHeigt(rowCount) }) }
-                            onRowsRendered={onRowsRendered}
-                            ref={registerChild}
-                            overscanRowCount={Math.ceil(height/ROW_HEIGH)}
-                            rowCount={rowCount}
-                            onScroll={(e)=> this.onScroll(e)}
-                            rowHeight={({index}) => getHeight(entities[index])}
-                            scrollTop={scrollTop}
-                            rowRenderer={(e) => this.rowRenderer(e)}
-                            noRowsRenderer={() => this.noRowsRenderer()}
-                            width={width}
-                      />
-                    )}
-                  </AutoSizer>
-                )}
-              </InfiniteLoader>
-            </div>
-          )
-        }}
-      </ChatContext.Consumer>
-    )
-  }
-}
-
-export default function commonList(RowComponent, GhostRowComponent=DefaultGhostRow) {
-  return props => <CommonList {...props} Row={RowComponent} GhostRow={GhostRowComponent}/>;
-}
+export default CommonList;
