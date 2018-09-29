@@ -1,78 +1,54 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
-
+import moment from 'moment'
+import cn from 'classnames'
 import s from './Row.scss'
 
 import { ChatContext } from '../Chat'
 
+
 class Row extends PureComponent {
   constructor(props) {
     super(props);
-
     this.state = {
-      height: 0,
-      top: 0,
-    };
+      height:0,
+      isOpen: false
+    }
     this.row = React.createRef();
     this.inner = React.createRef();
-    this.makeStyles = this.makeStyles.bind(this);
+    this.updateHeight = this.updateHeight.bind(this);
   }
   componentDidMount(){
-    if(!!this.inner.current.offsetHeight){
-      this.setState({height: this.inner.current.offsetHeight});
-    }
-    this.makeStyles();
+    this.updateHeight()
   }
   componentDidUpdate(){
-    if(!!this.inner.current.offsetHeight){
-      this.setState({height: this.inner.current.offsetHeight});
-    }
-    if(this.row.current.offsetHeight != this.state.height){
-      this.makeStyles();
-    }
+    const { height } = this.state;
+    if(this.inner.current.offsetHeight != this.row.current.offsetHeight ||
+       height != this.inner.current.offsetHeight || height == 0) this.updateHeight()
   }
-  makeStyles(){
-    const { id, rowHeights, entities, updateRowHeight, style } = this.props;
-    let arHeights = Object.keys(rowHeights).reverse();
-    const clearInner = arHeights.splice(id, (Object.keys(entities).length)-id);
-    let top = 0;
-    for (var i = 1; i <= arHeights.length; i++) {
-      top = i != 1 ? top + rowHeights[arHeights[i]] : 0;
-    }
-    let finStyles = {...style}
-    finStyles.top = top;
-    if(!!style.height && !top){
-      finStyles.top = style.height*id;
-    }
-    if(!!this.state.height && this.inner.current.offsetHeight == this.state.height){
-      finStyles.height = this.state.height;
-    }else{
-      finStyles.height = this.inner.current.offsetHeight;
-    }
-    this.setState({...finStyles});
-    updateRowHeight({id, height: finStyles.height});
+
+  updateHeight(){
+    const { index, msg, updateHeight } = this.props;
+    const height = this.inner.current.offsetHeight
+    this.setState({height}, () => updateHeight({index, height}) );
   }
   render(){
-    const { style, index, rowHeights, entities, updateRowHeight } = this.props;
-    const { height, top } = this.state;
-    console.log(index);
-    const msg = entities[index];
+    const { isOpen } = this.state;
+    const { style, msg, rowHeights, index } = this.props;
     return (
-      <div className={s.row} ref={this.row} style={{height, top}}>
+      <div className={cn(s.row,{[s.rowOpen]:isOpen })} style={style} ref={this.row} onClick={() => this.setState({isOpen: !isOpen}, () => this.updateHeight())}>
         <div className={s.rowInner} ref={this.inner}>
           <div className='st-prospect__left'>
-            <label className="st-checkbox">
-              <i className="st-checkbox__button"></i>
-            </label>
+           msg.id:{msg.id} - index:{index}
           </div>
           <div className="st-prospect__col _index">
-            {msg.auto} '
+            {msg.autor}
           </div>
           <div className="st-prospect__col">
             {msg.text}
           </div>
           <div className="st-prospect__col">
-            <div className="st-text _xl _overflow" role="button"> {msg.time} </div>
+            <div className="st-text _xl _overflow" role="button"> {moment.unix(msg.time).format("MM/DD/YYYY, h:mm:ss ")} </div>
           </div>
         </div>
       </div>

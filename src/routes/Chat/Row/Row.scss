@@ -1,8 +1,17 @@
 .row {
   display: block;
   min-width: 100%;
-  position: absolute;
+  background: #e7f3fb;
+  border: 1px solid #7ec4f3;
+  border-left: 0px;
+  border-right: 0px;
+  transition: 0.4s;
   &Inner{
     padding: 16px 4px;
+  }
+  &Open{
+    .rowInner{
+      padding: 32px 4px;
+    }
   }
 }

@@ -1,35 +1,41 @@
-import React, { PureComponent } from 'react'
+import React, { Component } from 'react'
 import List from './List/List'
 import MainLayout from '../../layouts/MainLayout'
 import axios from 'axios'
 import PropTypes from 'prop-types'
 
-const entities = [1,2,3,4,5,6,7,8,9,0,10,11,12,13,14,15,16,17,18,19,20,31,32,33,34,35,36,37,38,39,30,40,41,42,43,44,45,46,47,48,49,50];
+export const ChatContext = React.createContext();
 
-export const ChatContext = React.createContext({entities});
-
-class Chat extends PureComponent {
+class Chat extends Component {
   constructor(props) {
     super(props);
 
-    this.state = {
+    const state = {
+      rowHeights:[],
       loading: false,
       chats:[],
-      rowHeights: {},
       entities:{},
       messages: [],
       total: null
     };
+    this.state = state;
     this.loadChats = this.loadChats.bind(this);
     this.updateRowHeight = this.updateRowHeight.bind(this);
-    this.loadChats();
-    if(!!props.match.params.chat) this.loadChat(props.match.params.chat)
   }
   componentDidMount(){
-    //console.log(this);
+    this.loadChats();
+    if(!!this.props.match.params.chat) this.loadChat(this.props.match.params.chat)
   }
   componentDidUpdate(prevProps){
-    if(prevProps.match.params.chat != this.props.match.params.chat) this.loadChat(this.props.match.params.chat);
+    if(prevProps.match.params.chat != this.props.match.params.chat){
+      this.setState({
+        entities:{},
+        messages: [],
+        rowHeights:[],
+        total:null
+      })
+      this.loadChat(this.props.match.params.chat);
+    }
   }
   loadChats(){
     return axios.get('//localhost:3000/chats')
@@ -40,39 +46,48 @@ class Chat extends PureComponent {
         }
       })
   }
-  loadChat(chat, offset=0, limit=40){
-    if(this.state.loading) return;
-    this.setState({loading:true});
-    axios.post('//localhost:3000/get_messages', {chat, limit, offset})
+  loadChat(chat, offset=0, limit=80){
+    if(!!this.state.loading) return;
+    this.setState({loading:true})
+      axios.post('//localhost:3000/get_messages', {chat, limit, offset})
       .then(({data}) => {
         const { messages, total } = data;
-        let msgs = {}, array = []
-        for (var i = messages.length - 1; i >= 0; i--) {
-          array.push(messages[i]);
-          msgs[messages[i].id+1] = messages[i]
+        let entities = {}, array = this.state.messages;
+        for (var i = 1; i < messages.length; i++) {
+          array.push(messages[i].id);
+          entities[messages[i].id] = messages[i]
         }
-        const stateMsgs = this.state.messages
-        this.setState({messages: array, entities: {...stateMsgs, ...msgs}, total, loading:false})
+        const stateEntities = this.state.entities
+        this.setState({messages: array, entities: {...stateEntities, ...entities}, total});
+        setTimeout(() =>
+          this.setState({loading:false}), 10)
       })
   }
   updateRowHeight({index, height}){
     let { rowHeights } = this.state;
-    rowHeights[index]= height;
-    this.setState({rowHeights})
+    if(!!rowHeights[index] && rowHeights[index] === height) return;
+    if(!!rowHeights[index] && rowHeights[index] != height) rowHeights[index] = height;
+    rowHeights.push(height);
+    this.setState({rowHeights});
   }
   render() {
     const { match } = this.props;
     const { chats, messages, entities, total, loading, rowHeights } = this.state;
-    console.log('messages', messages);
-
     return(
-      <ChatContext.Provider value={{ chats, messages:entities, total, rowHeights, updateRowHeight:this.updateRowHeight}}>
+      <ChatContext.Provider value={{ chats, entities, total, rowHeights, updateRowHeight:this.updateRowHeight}}>
         <MainLayout>
           <List chatName={match.params.chat}
-                entities={messages}
                 total={total}
                 rowHeights={rowHeights}
-                loadMore={() => this.loadChat(match.params.chat, Object.keys(messages).length)}/>
+                entities={entities}
+                messages={messages}
+                loading={loading}
+                loadMore={() => this.loadChat(match.params.chat, Object.keys(entities).length)}/>
+          <form className="form">
+            <button>Smileys</button>
+            <input defaultValue="msg"/>
+            <button role='submit'>Send</button>
+          </form>
           {!!loading &&
             <div className='Pleloader'>Load history...</div>
           }

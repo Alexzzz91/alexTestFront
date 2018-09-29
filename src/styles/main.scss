@@ -19,4 +19,19 @@
     padding: 16px;
     background: linear-gradient(to bottom, white 90%, transparent);
   }
+  .form{
+    position: relative;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 100px;
+    display: flex;
+    align-items:center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    background: white;
+    padding: 20px;
+    max-height: 100px;
+    flex: 1;
+  }
 }
