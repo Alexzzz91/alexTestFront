@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import List from './List/List'
 import MainLayout from '../../layouts/MainLayout'
 import axios from 'axios'
+import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 export const ChatContext = React.createContext();
@@ -41,16 +42,15 @@ class Chat extends Component {
     return axios.get('//localhost:3000/chats')
       .then(({data}) => {
         this.setState({chats:data})
-        if(!this.props.match.params.chat){
-          this.loadChat(data[0])
-        }
+        if(!this.props.match.params.chat) this.props.history.push(data[0]);
       })
   }
-  loadChat(chat, offset=0, limit=80){
+  loadChat(chat, offset=0, limit=44){
     if(!!this.state.loading) return;
     this.setState({loading:true})
       axios.post('//localhost:3000/get_messages', {chat, limit, offset})
       .then(({data}) => {
+
         const { messages, total } = data;
         let entities = {}, array = this.state.messages;
         for (var i = 1; i < messages.length; i++) {
@@ -98,6 +98,7 @@ class Chat extends Component {
 }
 
 Chat.propTypes = {
+
 };
 
-export default Chat
+export default withRouter(Chat);

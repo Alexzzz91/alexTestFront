@@ -1,17 +1,26 @@
 .row {
   display: block;
   min-width: 100%;
-  background: #e7f3fb;
-  border: 1px solid #7ec4f3;
   border-left: 0px;
   border-right: 0px;
   transition: 0.4s;
+  background: white;
+  border: 1px solid transparent;
+  &:hover{
+    background: #e7f3fb;
+    border: 1px solid #7ec4f3;
+  }
   &Inner{
-    padding: 16px 4px;
+    padding: 16px 8px;
   }
   &Open{
     .rowInner{
-      padding: 32px 4px;
+      padding: 32px 8px;
     }
+  }
+  &Row{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
 }

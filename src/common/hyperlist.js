@@ -249,11 +249,16 @@ var HyperList = function () {
           HyperList.mergeStyle(element, elementStyle);
         }
 
-      var scrollerHeight = config.itemHeight * config.total;
+      var scrollerHeight;
+      if (isNumber(config.itemHeight)) {
+        scrollerHeight = config.itemHeight * config.total;
+      } else {
+        scrollerHeight = this._itemHeights;
+      }
       var maxElementHeight = this._maxElementHeight;
 
       if (scrollerHeight > maxElementHeight) {
-        //console.warn(['HyperList: The maximum element height', maxElementHeight + 'px has', 'been exceeded; please reduce your item height.'].join(' '));
+        console.warn(['HyperList: The maximum element height', maxElementHeight + 'px has', 'been exceeded; please reduce your item height.'].join(' '));
       }
 
       var scrollerStyle = (_scrollerStyle = {
@@ -463,7 +468,7 @@ var HyperList = function () {
       this._containerSize = containerHeight;
 
       // Cache 3 times the number of items that fit in the container viewport.
-      this._cachedItemsLen = Math.max(this._cachedItemsLen || 0, this._screenItemsLen * 3);
+      this._cachedItemsLen = Math.max(this._cachedItemsLen || 0, this._screenItemsLen * 2);
       this._averageHeight = averageHeight;
 
       if (config.reverse) {
@@ -4556,7 +4561,7 @@ var _class = function (_Component) {
 
           if (!_this3.state.element.style) {
             requestAnimationFrame(function () {
-              _this3.wrapperNode[scrollProp] = element[scrollProp];
+              _this3.wrapperNode[scrollProp] = parseInt(element[scrollProp]);
             });
           }
 

@@ -1,4 +1,7 @@
 :global{
+  *{
+    box-sizing: border-box;
+  }
   body,
   #app{
     margin: 0;
