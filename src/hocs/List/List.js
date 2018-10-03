@@ -40,36 +40,36 @@ class CommonList extends PureComponent {
     window.addEventListener("resize", () => this.setContainerParams());
   }
   componentDidUpdate(prevProps, prevState){
+    console.log('prevProps', prevProps);
     const { listHeight } = this.state;
+    if(!!prevState.entitiesLenght && this.state.entitiesLenght < this.props.messages.length){
+      this.setState({entitiesLenght:this.props.messages.length});
+      // console.log('prevState.scrollBottom', prevState.scrollBottom - this.state.scrollTop);
+      this.listRefresh(this.state.scrollHeight - this.state.scrollBottom + this.state.scrollTop);
+    }
     const newHeight = this.props.rowHeights.reduce((a, b) => a + b, 0);
     if(listHeight !== newHeight){
       this.setState({listHeight: newHeight});
       this.listRefresh()
     };
-    if(!!prevState.entitiesLenght && this.state.entitiesLenght < this.props.messages.length){
-      console.log('ты обновил список', this.state);
-      this.setState({entitiesLenght:this.props.messages.length});
-      console.log('prevState.scrollBottom', prevState.scrollBottom + this.state.scrollTop);
-      this.listRefresh(prevState.scrollBottom);
-    }
-    if(!this.state.entitiesLenght && !!this.props.messages.length){
-      this.scrollbar.current.scrollToBottom();
-      //cчитаю что тут надо подождать чутка чтобы опуститься вниз
-      setTimeout( () => this.setState({isLoaded:true}), 1000);
-
-    }
-    if(this.props.messages.length !== this.state.entitiesLenght && !!this.props.messages.length && !!prevState.scrollTop){
-      this.setState({scrollTop:prevState.scrollTop, entitiesLenght: this.props.messages.length})
-    }
-
     if(prevProps.chatName != this.props.chatName && !!this.list.current){
       const { scrollTop } = this.list.current.state.element
       this.setState({
-        scrollTop:parseInt(this.list.current.state.scroller.style.height),
         entitiesLenght: 0,
         listHeight: 0
       })
       this.scrollbar.current.scrollToBottom();
+    }
+    if(!this.state.entitiesLenght && !!this.props.messages.length){
+      this.setState({entitiesLenght:this.props.messages.length});
+      //cчитаю что тут надо подождать чутка чтобы опуститься вниз
+      setTimeout( () => {
+        this.setState({isLoaded:true});
+        this.scrollbar.current.scrollToBottom();
+      }, 100);
+    }
+    if(this.props.messages.length !== this.state.entitiesLenght && !!this.props.messages.length && !!prevState.scrollTop){
+      this.setState({scrollTop:prevState.scrollTop, entitiesLenght: this.props.messages.length})
     }
     this.setContainerParams();
   }
@@ -78,16 +78,15 @@ class CommonList extends PureComponent {
   }
 
   listRefresh(scrollTop){
-    console.log('listRefresh scrollTop', scrollTop)
+    //console.log('listRefresh scrollTop', scrollTop)
     if(!!scrollTop){
       this.scrollbar.current.scrollTop(scrollTop);
       this.list.current.wrapperNode.scrollTop = scrollTop;
       this.setState({scrollTop}, () => this.list.current.list.refresh(scrollTop));
       return;
     }
-    this.list.current.list.refresh();
+    !!this.list.current.list && this.list.current.list.refresh();
   }
-
 
   setContainerParams(){
     if(this.state.containerHeight == 0 && this.state.containerHeight !== this.container.current.offsetHeight){
@@ -95,8 +94,9 @@ class CommonList extends PureComponent {
         containerHeight:this.container.current.offsetHeight,
         containerWidth:this.container.current.offsetWidth
       });
+      this.scrollbar.current.scrollToBottom();
     }
-    this.list.current.list.refresh();
+    //this.list.current.list.refresh();
   }
   isRowLoaded (index) {
     const { entities } = this.props;
@@ -109,9 +109,9 @@ class CommonList extends PureComponent {
   loadMoreRows () {
     const { entities, loading, total, loadMore } = this.props;
     if (loading || entities.length == total && !entities.length) return false
-    const scrollBottom = this.scrollbar.current.getScrollHeight() - this.scrollbar.current.viewScrollTop || 0;
-    console.log('scrollBottom', scrollBottom);
-    this.setState({ scrollTop: this.scrollbar.current.viewScrollTop, scrollBottom })
+    const scrollBottom = this.state.scrollHeight - this.state.scrollTop || 0;
+
+    this.setState({ scrollBottom })
     return loadMore();
   }
 
@@ -165,7 +165,9 @@ class CommonList extends PureComponent {
               <HyperList ref={this.list}
                          height={this.state.containerHeight || '100%'}
                          width={'100%'}
-                         itemHeight={(rowHeights.reduce((a, b) => a + b, 0))/rowHeights.length || 100}
+                         itemHeight={rowHeights}
+                         targetRow={this.state.targetRow}
+                         //itemHeight={(rowHeights.reduce((a, b) => a + b, 0))/rowHeights.length || 100}
                          total={messages.length+1}
                          reverse={true}
                          overrideScrollPosition={() => this.state.scrollTop}

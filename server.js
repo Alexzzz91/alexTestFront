@@ -43,7 +43,7 @@ app.post('/get_messages', function (req, res) {
       console.log('cannot find chat!');
       return res.send(404);
     }
-    const messages = r.messages.slice(offset, offset+limit);
+    const messages = r.messages.slice(offset, offset+limit-1);
     res.send({messages, total: r.messages.length});
   });
 
@@ -87,6 +87,7 @@ async function createMessages(){
 
       el.messages.push(msg);
     }
+    el.messages = el.messages.reverse();
     obj.chats.push(el)
   }
 

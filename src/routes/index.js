@@ -13,13 +13,13 @@ export default class Routes {
         component: Chat,
       },
       {
-        path: "/:chat",
-        component: Chat,
-      },
-      {
         path: "/:chat/:messageId",
         component: Chat,
       },
+      {
+        path: "/:chat",
+        component: Chat,
+      }
     ];
 
     routeHandler.hooks.initRoutes.tapPromise("AppRoutes", async () => {

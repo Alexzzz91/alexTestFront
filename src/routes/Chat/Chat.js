@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import List from './List/List'
 import MainLayout from '../../layouts/MainLayout'
 import axios from 'axios'
+import moment from 'moment'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
@@ -12,20 +13,27 @@ class Chat extends Component {
     super(props);
 
     const state = {
+      message: '',
       rowHeights:[],
       loading: false,
       chats:[],
       entities:{},
+      target: null,
       messages: [],
       total: null
     };
     this.state = state;
     this.loadChats = this.loadChats.bind(this);
     this.updateRowHeight = this.updateRowHeight.bind(this);
+    this.handleChangeMessage = this.handleChangeMessage.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
   componentDidMount(){
     this.loadChats();
     if(!!this.props.match.params.chat) this.loadChat(this.props.match.params.chat)
+    if(!!this.props.match.params.chat && !!this.props.match.params.messageId){
+      this.setState({target:this.props.match.params.messageId});
+    }
   }
   componentDidUpdate(prevProps){
     if(prevProps.match.params.chat != this.props.match.params.chat){
@@ -45,7 +53,7 @@ class Chat extends Component {
         if(!this.props.match.params.chat) this.props.history.push(data[0]);
       })
   }
-  loadChat(chat, offset=0, limit=44){
+  loadChat(chat, offset=0, limit=54){
     if(!!this.state.loading) return;
     this.setState({loading:true})
       axios.post('//localhost:3000/get_messages', {chat, limit, offset})
@@ -60,7 +68,7 @@ class Chat extends Component {
         const stateEntities = this.state.entities
         this.setState({messages: array, entities: {...stateEntities, ...entities}, total});
         setTimeout(() =>
-          this.setState({loading:false}), 10)
+          this.setState({loading:false}), 100)
       })
   }
   updateRowHeight({index, height}){
@@ -70,22 +78,39 @@ class Chat extends Component {
     rowHeights.push(height);
     this.setState({rowHeights});
   }
+  handleChangeMessage({target}){
+    this.setState({message: target.value})
+  }
+  handleSubmit(e){
+    e.preventDefault()
+    let { entities, messages } = this.state;
+    const massage = {
+      id: messages[0]+1,
+      autor: "alk",
+      time: moment().unix(),
+      text: this.state.message
+    }
+    entities[messages[0]+1] = massage;
+    messages.unshift(messages[0]+1);
+    this.setState({entities, messages, message: ''})
+  }
   render() {
     const { match } = this.props;
-    const { chats, messages, entities, total, loading, rowHeights } = this.state;
+    const { chats, messages, entities, total, loading, rowHeights, target, message } = this.state;
     return(
-      <ChatContext.Provider value={{ chats, entities, total, rowHeights, updateRowHeight:this.updateRowHeight}}>
+      <ChatContext.Provider value={{ chats, entities, total, rowHeights, updateRowHeight:this.updateRowHeight, loadMore: () => this.loadChat(match.params.chat, Object.keys(entities).length)}}>
         <MainLayout>
           <List chatName={match.params.chat}
                 total={total}
                 rowHeights={rowHeights}
                 entities={entities}
+                target={target}
                 messages={messages}
                 loading={loading}
                 loadMore={() => this.loadChat(match.params.chat, Object.keys(entities).length)}/>
-          <form className="form">
+          <form className="form" onSubmit={this.handleSubmit}>
             <button>Smileys</button>
-            <input defaultValue="msg"/>
+            <input value={message} onChange={this.handleChangeMessage}/>
             <button role='submit'>Send</button>
           </form>
           {!!loading &&

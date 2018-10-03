@@ -464,11 +464,12 @@ var HyperList = function () {
 
       var clientProp = isHoriz ? 'clientWidth' : 'clientHeight';
       var containerHeight = (this._element[clientProp] ? this._element[clientProp] : this._containerSize) || config.width;
+
       this._screenItemsLen = Math.ceil(containerHeight / averageHeight);
       this._containerSize = containerHeight;
-
-      // Cache 3 times the number of items that fit in the container viewport.
-      this._cachedItemsLen = Math.max(this._cachedItemsLen || 0, this._screenItemsLen * 2);
+      if(this._cachedItemsLen === Infinity) this._cachedItemsLen = 0 ;
+      // Cache * 3 times the number of items that fit in the container viewport.
+      this._cachedItemsLen = Math.max(this._cachedItemsLen || 0, this._screenItemsLen*3);
       this._averageHeight = averageHeight;
 
       if (config.reverse) {
