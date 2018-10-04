@@ -6,6 +6,10 @@ import moment from 'moment'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
+import config from '../../../config.json'
+
+import openSocket from 'socket.io-client'
+let socket;
 export const ChatContext = React.createContext();
 
 class Chat extends Component {
@@ -34,6 +38,7 @@ class Chat extends Component {
     if(!!this.props.match.params.chat && !!this.props.match.params.messageId){
       this.setState({target:this.props.match.params.messageId});
     }
+    socket = openSocket(`http://localhost:${config.serverPort}`);
   }
   componentDidUpdate(prevProps){
     if(prevProps.match.params.chat != this.props.match.params.chat){
@@ -47,7 +52,7 @@ class Chat extends Component {
     }
   }
   loadChats(){
-    return axios.get('//localhost:3000/chats')
+    return axios.get(`http://localhost:${config.serverPort}/chats`)
       .then(({data}) => {
         this.setState({chats:data})
         if(!this.props.match.params.chat) this.props.history.push(data[0]);
@@ -56,7 +61,7 @@ class Chat extends Component {
   loadChat(chat, offset=0, limit=54){
     if(!!this.state.loading) return;
     this.setState({loading:true})
-      axios.post('//localhost:3000/get_messages', {chat, limit, offset})
+      axios.post(`http://localhost:${config.serverPort}/get_messages`, {chat, limit, offset})
       .then(({data}) => {
 
         const { messages, total } = data;
@@ -70,6 +75,7 @@ class Chat extends Component {
         setTimeout(() =>
           this.setState({loading:false}), 100)
       })
+      .catch(err => this.props.history.push(''))
   }
   updateRowHeight({index, height}){
     let { rowHeights } = this.state;
@@ -84,14 +90,18 @@ class Chat extends Component {
   handleSubmit(e){
     e.preventDefault()
     let { entities, messages } = this.state;
-    const massage = {
+    const message = {
       id: messages[0]+1,
       autor: "alk",
       time: moment().unix(),
       text: this.state.message
     }
-    entities[messages[0]+1] = massage;
+    entities[messages[0]+1] = message;
     messages.unshift(messages[0]+1);
+    socket.emit('message', {
+      chatName: this.props.match.params.chat,
+      message
+    });
     this.setState({entities, messages, message: ''})
   }
   render() {

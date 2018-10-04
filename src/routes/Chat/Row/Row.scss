@@ -11,16 +11,53 @@
     border: 1px solid #7ec4f3;
   }
   &Inner{
-    padding: 16px 8px;
+    padding: 4px 8px;
   }
   &Open{
     .rowInner{
       padding: 32px 8px;
     }
   }
+  &Date{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 0;
+  }
   &Row{
     display: flex;
     align-items: center;
     justify-content: space-between;
+    &._left{
+      justify-content: flex-start;
+      border-bottom: 1px solid red;
+    }
+    &._right{
+      justify-content: flex-end;
+      border-bottom: 1px solid blue;
+    }
+    &Left{
+
+    }
+    &Col{
+      &._index{
+      margin: 0 16px;
+      }
+    }
+  }
+  &HideTime{
+    .text{
+      &.time{
+        transition: 0.4s;
+        opacity: 0;
+      }
+    }
+    &:hover{
+      .text{
+        &.time{
+          opacity: 1;
+        }
+      }
+    }
   }
 }

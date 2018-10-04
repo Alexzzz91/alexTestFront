@@ -11,7 +11,10 @@ class Row extends PureComponent {
     super(props);
     this.state = {
       height:0,
-      isOpen: false
+      isOpen: false,
+      someAutor: false,
+      showTime: true,
+      showDateTitle: false,
     }
     this.row = React.createRef();
     this.inner = React.createRef();
@@ -22,39 +25,54 @@ class Row extends PureComponent {
   }
   componentDidUpdate(){
     const { height } = this.state;
-    if(this.inner.current.offsetHeight != this.row.current.offsetHeight ||
-       height != this.inner.current.offsetHeight || height == 0) this.updateHeight()
+    const { prevousMsg, nextMsg, msg } = this.props;
+    const someAutor = !!prevousMsg && prevousMsg.autor === msg.autor;
+    const showDateTitle = !!prevousMsg && moment.unix(prevousMsg.time).format("MM/DD/YYYY") !== moment.unix(msg.time).format("MM/DD/YYYY");
+    const showTime = !!prevousMsg && (msg.time - prevousMsg.time) > 15;
+
+    this.setState({someAutor, showDateTitle, showTime});
+    let offsetHeight = this.inner.current.offsetHeight;
+    if(showDateTitle) offsetHeight = offsetHeight+36;
+    if(offsetHeight != this.row.current.offsetHeight || height != offsetHeight || height == 0) this.updateHeight()
   }
 
   updateHeight(){
     const { index, msg, updateHeight } = this.props;
-    const height = this.inner.current.offsetHeight
+    const { showDateTitle } = this.state;
+    let height = this.inner.current.offsetHeight
+
+    if(showDateTitle) height = height+36;
     this.setState({height}, () => updateHeight({index, height}) );
   }
   render(){
-    const { isOpen } = this.state;
-    const { style, msg, rowHeights, index } = this.props;
+    const { isOpen, showDateTitle, someAutor, showTime } = this.state;
+    const { style, msg, rowHeights, index, prevousMsg, nextMsg } = this.props;
     return (
-      <div className={cn(s.row,{[s.rowOpen]:isOpen })} style={style} ref={this.row} onClick={() => this.setState({isOpen: !isOpen}, () => this.updateHeight())}>
-        <div className={s.rowInner} ref={this.inner}>
-          <div className={s.rowRow}>
-            <div className='st-prospect__left'>
-             msg.id:{msg.id} - index:{index}
+        <div className={cn(s.row,{[s.rowOpen]:isOpen, [s.rowHideTime]: !showTime})} style={style} ref={this.row} onClick={() => this.setState({isOpen: !isOpen}, () => this.updateHeight())}>
+          { showDateTitle &&
+            <div className={s.rowDate}>
+              { moment.unix(msg.time).format("MMMM DD YYYY")}
             </div>
-            <div className="st-prospect__col _index">
-              {msg.autor}
+          }
+          <div className={s.rowInner} ref={this.inner}>
+            <div className={cn(s.rowRow, {[s._left]: msg.autor === "no alk", [s._right]: msg.autor === "alk"})}>
+              <div className={s.rowRowLeft}>
+               msg.id:{msg.id} - index:{index}
+              </div>
+              <div className={`${s.rowRowCol} ${s._index}`}>
+                { !someAutor && msg.autor }
+              </div>
+              <div className={`${s.rowRowCol}`}>
+                <div className={`${s.text} ${s.time}`} role="button"> {moment.unix(msg.time).format("h:mm:ss a")} </div>
+              </div>
             </div>
-            <div className="st-prospect__col">
-              <div className="st-text _xl _overflow" role="button"> {moment.unix(msg.time).format("MM/DD/YYYY, h:mm:ss ")} </div>
-            </div>
-          </div>
-          <div className={s.rowRow}>
-            <div className="st-prospect__col">
-              {msg.text}
+            <div className={s.rowRow}>
+              <div className={`${s.rowRowCol}`}>
+                {msg.text}
+              </div>
             </div>
           </div>
         </div>
-      </div>
     )
   }
 }

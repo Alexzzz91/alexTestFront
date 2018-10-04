@@ -21,6 +21,8 @@
     "react-custom-scrollbars": "^4.2.1",
     "react-faux-dom": "^4.2.0",
     "react-hyperlist": "^1.0.0-alpha.1",
-    "react-visibility-sensor": "^4.1.1"
+    "react-visibility-sensor": "^4.1.1",
+    "socket.io": "^2.1.1",
+    "socket.io-client": "^2.1.1"
   }
 }

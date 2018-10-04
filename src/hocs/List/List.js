@@ -40,17 +40,19 @@ class CommonList extends PureComponent {
     window.addEventListener("resize", () => this.setContainerParams());
   }
   componentDidUpdate(prevProps, prevState){
-    console.log('prevProps', prevProps);
     const { listHeight } = this.state;
     if(!!prevState.entitiesLenght && this.state.entitiesLenght < this.props.messages.length){
+      if(this.state.scrollHeight != prevState.scrollHeight){
+        alert('asdad');
+      }
       this.setState({entitiesLenght:this.props.messages.length});
       // console.log('prevState.scrollBottom', prevState.scrollBottom - this.state.scrollTop);
-      this.listRefresh(this.state.scrollHeight - this.state.scrollBottom + this.state.scrollTop);
+      //this.listRefresh(this.state.scrollHeight - this.state.scrollBottom + this.state.scrollTop);
     }
     const newHeight = this.props.rowHeights.reduce((a, b) => a + b, 0);
     if(listHeight !== newHeight){
       this.setState({listHeight: newHeight});
-      this.listRefresh()
+      _.throttle(() => this.listRefresh(), 10)
     };
     if(prevProps.chatName != this.props.chatName && !!this.list.current){
       const { scrollTop } = this.list.current.state.element
@@ -101,7 +103,7 @@ class CommonList extends PureComponent {
   isRowLoaded (index) {
     const { entities } = this.props;
     if(entities[index] === undefined && this.state.isLoaded) {
-      this.loadMoreRows();
+      //this.loadMoreRows();
     }
     return entities[index] !== undefined;
   }
@@ -122,8 +124,14 @@ class CommonList extends PureComponent {
     let height = ROW_HEIGH;
     this.isRowLoaded(messages[index]);
 
-    if(!!msg && !!msg.id){
-      element = <Row key={messages[index].id} index={index} msg={msg} updateHeight={updateRowHeight} rowHeights={rowHeights}/>
+    if(!!msg){
+      element = <Row key={messages[index].id}
+                     index={index}
+                     prevousMsg={entities[messages[index+1]]}
+                     msg={msg}
+                     nextMsg={entities[messages[index-1]]}
+                     updateHeight={updateRowHeight}
+                     rowHeights={rowHeights}/>
       height = !!rowHeights[index] ? parseInt(rowHeights[index]+'') : ROW_HEIGH;
     }
     return { element, height };

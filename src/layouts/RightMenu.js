@@ -22,9 +22,9 @@ const RightMenu = ({ component: Component, ...rest }) => (
             </Link>
           ) )}
         </ul>
-        <buttom onClick={() => loadMore()}>
+        <button onClick={() => loadMore()}>
           loadMore
-        </buttom>
+        </button>
       </div>
     )
   }}

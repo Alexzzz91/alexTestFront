@@ -2,17 +2,21 @@ const express = require('express');
 const fs = require('fs');
 const _ = require('lodash');
 const moment = require('moment');
-var cors = require('cors')
+const cors = require('cors')
 const bodyParser = require('body-parser')
 
-var app = express();
+let app = express();
 
 app.use(cors())
 
+const http = require('http').Server(app);
+
+const config = require('./config.json');
+
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+app.use( bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
-}));
+}) );
 
 app.get('/', function (req, res) {
   console.log('req.query', req.query);
@@ -66,22 +70,23 @@ async function createMessages(){
       name: worldsArray[getRandomInt(1, worldsArray.length-1)],
       messages: []
     }
-    let lastAddedSecond = 10;
-    for (let j = 0; j < getRandomInt(worldsArray.length*50, (worldsArray.length-1)*500000); j++) {
-      lastAddedSecond = lastAddedSecond + j;
+    let lastAddedSecond = 0;
+    let seconds = 0;
+    for (let j = 0; j < getRandomInt(worldsArray.length*50, (worldsArray.length-1)*500); j++) {
+      lastAddedSecond = lastAddedSecond + seconds;
       let msg = {
         id: j,
         autor: getRandomInt(0, 4) > 2 ? 'alk' : 'no alk',
-        time: moment().subtract(lastAddedSecond, 'seconds').unix(),
+        time: moment().add(lastAddedSecond, 'seconds').unix(),
         text: ''
       };
 
 
-      if(getRandomInt(0, 4) > 2) lastAddedSecond = lastAddedSecond+15;
-      if(getRandomInt(0, 3) >= 3) lastAddedSecond = lastAddedSecond+10;
-
+      // if(getRandomInt(0, 6) > 3) lastAddedSecond = lastAddedSecond+5;
+      // if(getRandomInt(0, 8) >= 4) lastAddedSecond = lastAddedSecond+10;
+      seconds++;
       msg.text += worldsArray[getRandomInt(1, worldsArray.length-1)];
-      for (let m = 0; m < getRandomInt(1, worldsArray.length-1); m++) {
+      for (let m = 0; m < getRandomInt(1, worldsArray.length/4); m++) {
         msg.text += ' '+worldsArray[getRandomInt(1, worldsArray.length-1)];
       }
 
@@ -105,6 +110,18 @@ async function createMessages(){
 
 createMessages();
 
-app.listen(3000, function () {
-  console.log('Example app listening on port 3000!');
+const server = app.listen(config.serverPort, function () {
+  console.log(`Example app listening on port ${config.serverPort}`);
+});
+
+//socket piece
+const io = require('socket.io').listen(server);
+io.on('connection', (client) => {
+  client.on('message', (params) => {
+    console.log('params', params);
+    //client.emit('timer', new Date());
+    client.on('disconnect', function(){
+      console.log('user disconnected');
+    });
+  });
 });
