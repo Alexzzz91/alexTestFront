@@ -90,18 +90,21 @@ class Chat extends Component {
   handleSubmit(e){
     e.preventDefault()
     let { entities, messages } = this.state;
-    const message = {
+    const { message } = this.state;
+    if(!message) return;
+    const messageObj = {
       id: messages[0]+1,
       autor: "alk",
       time: moment().unix(),
-      text: this.state.message
+      text: message
     }
-    entities[messages[0]+1] = message;
+    entities[messages[0]+1] = messageObj;
     messages.unshift(messages[0]+1);
     socket.emit('message', {
       chatName: this.props.match.params.chat,
-      message
+      messageObj
     });
+
     this.setState({entities, messages, message: ''})
   }
   render() {

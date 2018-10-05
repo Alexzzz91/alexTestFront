@@ -52,7 +52,7 @@ class CommonList extends PureComponent {
     const newHeight = this.props.rowHeights.reduce((a, b) => a + b, 0);
     if(listHeight !== newHeight){
       this.setState({listHeight: newHeight});
-      _.throttle(() => this.listRefresh(), 10)
+      this.listRefresh()
     };
     if(prevProps.chatName != this.props.chatName && !!this.list.current){
       const { scrollTop } = this.list.current.state.element
@@ -88,6 +88,9 @@ class CommonList extends PureComponent {
       return;
     }
     !!this.list.current.list && this.list.current.list.refresh();
+    console.log(this.state.scrollHeight);
+    console.log(this.scrollbar.current.viewScrollTop);
+    console.log(this.scrollbar.current);
   }
 
   setContainerParams(){
