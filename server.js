@@ -70,20 +70,19 @@ async function createMessages(){
       name: worldsArray[getRandomInt(1, worldsArray.length-1)],
       messages: []
     }
-    let lastAddedSecond = 0;
     let seconds = 0;
     for (let j = 0; j < getRandomInt(worldsArray.length*50, (worldsArray.length-1)*500); j++) {
-      lastAddedSecond = lastAddedSecond + seconds;
       let msg = {
         id: j,
         autor: getRandomInt(0, 4) > 2 ? 'alk' : 'no alk',
-        time: moment().add(lastAddedSecond, 'seconds').unix(),
+        time: moment().subtract(seconds, 'seconds').unix(),
+        //time: moment().add(seconds, 'seconds').unix(),
         text: ''
       };
 
 
-      // if(getRandomInt(0, 6) > 3) lastAddedSecond = lastAddedSecond+5;
-      // if(getRandomInt(0, 8) >= 4) lastAddedSecond = lastAddedSecond+10;
+      if(getRandomInt(0, 5) > 3) seconds = seconds+15;
+      if(getRandomInt(0, 8) >= 6) seconds = seconds+10;
       seconds++;
       msg.text += worldsArray[getRandomInt(1, worldsArray.length-1)];
       for (let m = 0; m < getRandomInt(1, worldsArray.length/4); m++) {
@@ -118,7 +117,24 @@ const server = app.listen(config.serverPort, function () {
 const io = require('socket.io').listen(server);
 io.on('connection', (client) => {
   client.on('message', (params) => {
-    console.log('params', params);
+    fs.readFile('fakeData.json', (err, content) => {
+      if (err) return console.log('load file:', err);
+      // Authorize a client with credentials, then call the Google Sheets API.
+      content = JSON.parse(content);
+      let r = _.find(content.chats, { name: params.chatName });
+      if(!r) {
+        console.log('cannot find chat!');
+        return res.send(404);
+      }
+      r.messages.unshift(params.messageObj);
+
+      var json = JSON.stringify(content);
+
+      fs.writeFile('fakeData.json', json, 'utf8', (err, content) => {
+        if (err) return console.log('load file:', err);
+        //console.log('content', content);
+      });
+    });
     //client.emit('timer', new Date());
     client.on('disconnect', function(){
       console.log('user disconnected');

@@ -44,6 +44,11 @@
       }
     }
   }
+  .text{
+    &.time{
+      font-weight: bold;
+    }
+  }
   &HideTime{
     .text{
       &.time{

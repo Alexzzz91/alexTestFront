@@ -90,6 +90,9 @@ class CommonList extends PureComponent {
       return;
     }
     !!this.list.current.list && this.list.current.list.refresh();
+    console.log(this.state.scrollHeight);
+    console.log(this.scrollbar.current.viewScrollTop);
+    console.log(this.scrollbar.current);
   }
 
   setContainerParams(){
