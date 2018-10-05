@@ -468,8 +468,8 @@ var HyperList = function () {
       this._screenItemsLen = Math.ceil(containerHeight / averageHeight);
       this._containerSize = containerHeight;
       if(this._cachedItemsLen === Infinity) this._cachedItemsLen = 0 ;
-      // Cache * 1/5 times the number of items that fit in the container viewport.
-      this._cachedItemsLen = Math.max(this._cachedItemsLen || 0, this._screenItemsLen);
+      // Cache * 2 times the number of items that fit in the container viewport.
+      this._cachedItemsLen = Math.max(this._cachedItemsLen || 0, this._screenItemsLen*2);
       this._averageHeight = averageHeight;
 
       if (config.reverse) {

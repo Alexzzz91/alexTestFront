@@ -9,7 +9,7 @@ import PropTypes from 'prop-types'
 import config from '../../../config.json'
 
 import openSocket from 'socket.io-client'
-let socket;
+
 export const ChatContext = React.createContext();
 
 class Chat extends Component {
@@ -26,6 +26,7 @@ class Chat extends Component {
       messages: [],
       total: null
     };
+    this.socket = openSocket(`http://localhost:${config.serverPort}`);
     this.state = state;
     this.loadChats = this.loadChats.bind(this);
     this.updateRowHeight = this.updateRowHeight.bind(this);
@@ -38,8 +39,6 @@ class Chat extends Component {
     if(!!this.props.match.params.chat && !!this.props.match.params.messageId){
       this.setState({target:this.props.match.params.messageId});
     }
-    socket = openSocket(`http://localhost:${config.serverPort}`);
-    console.log('socket', socket);
   }
   componentDidUpdate(prevProps){
     if(prevProps.match.params.chat != this.props.match.params.chat){
@@ -59,12 +58,11 @@ class Chat extends Component {
         if(!this.props.match.params.chat) this.props.history.push(data[0]);
       })
   }
-  loadChat(chat, offset=0, limit=505){
+  loadChat(chat, offset=0, limit=55){
     if(!!this.state.loading) return;
     this.setState({loading:true})
       axios.post(`http://localhost:${config.serverPort}/get_messages`, {chat, limit, offset})
       .then(({data}) => {
-
         const { messages, total } = data;
         let entities = {}, array = this.state.messages;
         for (var i = 1; i < messages.length; i++) {
@@ -104,7 +102,7 @@ class Chat extends Component {
     }
     entities[messages[0]+1] = messageObj;
     messages.unshift(messages[0]+1);
-    socket.emit('message', {
+    this.socket && this.socket.emit && this.qsocket.emit('message', {
       chatName: this.props.match.params.chat,
       messageObj
     });
