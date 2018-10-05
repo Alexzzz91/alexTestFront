@@ -22,7 +22,8 @@ class CommonList extends PureComponent {
       scrollBottom: 0,
       entitiesLenght: 0,
       scrollHeight: 0,
-      listHeight: 0
+      listHeight: 0,
+      stickyBottom: false
     };
 
     this.state = state;
@@ -47,12 +48,13 @@ class CommonList extends PureComponent {
       }
       this.setState({entitiesLenght:this.props.messages.length});
       // console.log('prevState.scrollBottom', prevState.scrollBottom - this.state.scrollTop);
-      //this.listRefresh(this.state.scrollHeight - this.state.scrollBottom + this.state.scrollTop);
+      console.log(this.list.current);
+      this.listRefresh();
     }
     const newHeight = this.props.rowHeights.reduce((a, b) => a + b, 0);
     if(listHeight !== newHeight){
       this.setState({listHeight: newHeight});
-      _.throttle(() => this.listRefresh(), 10)
+      this.listRefresh()
     };
     if(prevProps.chatName != this.props.chatName && !!this.list.current){
       const { scrollTop } = this.list.current.state.element
@@ -98,12 +100,12 @@ class CommonList extends PureComponent {
       });
       this.scrollbar.current.scrollToBottom();
     }
-    //this.list.current.list.refresh();
+    this.list.current.list.refresh();
   }
   isRowLoaded (index) {
     const { entities } = this.props;
     if(entities[index] === undefined && this.state.isLoaded) {
-      //this.loadMoreRows();
+      this.loadMoreRows();
     }
     return entities[index] !== undefined;
   }
@@ -151,10 +153,12 @@ class CommonList extends PureComponent {
   }
   setScroll({scrollTop, scrollHeight} ){
     if(!scrollTop || this.state.scrollTop == scrollTop) return;
-    this.setState({scrollTop, scrollHeight}, () => this.listRefresh());
+    this.setState({scrollHeight}, () => this.listRefresh(scrollTop));
   }
   render() {
     const { className = s.list, total, entities, messages, rowHeights} = this.props;
+    // console.log(this.state.scrollTop);
+    // console.log('this.state', this.state);
     return(
       <ChatContext.Consumer>
         {context => (
@@ -175,7 +179,6 @@ class CommonList extends PureComponent {
                          width={'100%'}
                          itemHeight={rowHeights}
                          targetRow={this.state.targetRow}
-                         //itemHeight={(rowHeights.reduce((a, b) => a + b, 0))/rowHeights.length || 100}
                          total={messages.length+1}
                          reverse={true}
                          overrideScrollPosition={() => this.state.scrollTop}

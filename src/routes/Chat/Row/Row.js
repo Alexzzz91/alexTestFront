@@ -18,6 +18,7 @@ class Row extends PureComponent {
     }
     this.row = React.createRef();
     this.inner = React.createRef();
+    this.dateLine = React.createRef();
     this.updateHeight = this.updateHeight.bind(this);
   }
   componentDidMount(){
@@ -40,17 +41,22 @@ class Row extends PureComponent {
     const { index, msg, updateHeight } = this.props;
     const { showDateTitle } = this.state;
     let height = this.inner.current.offsetHeight
-
-    if(showDateTitle) height = height+36;
-    this.setState({height}, () => updateHeight({index, height}) );
+    let dateLineHeight = 0;
+    if(showDateTitle && !!this.dateLine && !!this.dateLine.current){
+      dateLineHeight = this.dateLine.current.offsetHeight;
+    }
+    this.setState({height: height+dateLineHeight}, () => updateHeight({index, height: height+dateLineHeight}) );
   }
   render(){
     const { isOpen, showDateTitle, someAutor, showTime } = this.state;
     const { style, msg, rowHeights, index, prevousMsg, nextMsg } = this.props;
     return (
-        <div className={cn(s.row,{[s.rowOpen]:isOpen, [s.rowHideTime]: !showTime})} style={style} ref={this.row} onClick={() => this.setState({isOpen: !isOpen}, () => this.updateHeight())}>
+        <div className={cn(s.row,{[s.rowOpen]:isOpen, [s.rowHideTime]: !showTime})}
+             style={style}
+             ref={this.row}
+             onClick={() => this.setState({isOpen: !isOpen}, () => this.updateHeight())}>
           { showDateTitle &&
-            <div className={s.rowDate}>
+            <div className={s.rowDate} ref={this.dateLine}>
               { moment.unix(msg.time).format("MMMM DD YYYY")}
             </div>
           }

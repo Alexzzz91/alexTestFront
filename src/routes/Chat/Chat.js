@@ -39,6 +39,7 @@ class Chat extends Component {
       this.setState({target:this.props.match.params.messageId});
     }
     socket = openSocket(`http://localhost:${config.serverPort}`);
+    console.log('socket', socket);
   }
   componentDidUpdate(prevProps){
     if(prevProps.match.params.chat != this.props.match.params.chat){
@@ -58,7 +59,7 @@ class Chat extends Component {
         if(!this.props.match.params.chat) this.props.history.push(data[0]);
       })
   }
-  loadChat(chat, offset=0, limit=54){
+  loadChat(chat, offset=0, limit=505){
     if(!!this.state.loading) return;
     this.setState({loading:true})
       axios.post(`http://localhost:${config.serverPort}/get_messages`, {chat, limit, offset})
@@ -80,8 +81,11 @@ class Chat extends Component {
   updateRowHeight({index, height}){
     let { rowHeights } = this.state;
     if(!!rowHeights[index] && rowHeights[index] === height) return;
-    if(!!rowHeights[index] && rowHeights[index] != height) rowHeights[index] = height;
-    rowHeights.push(height);
+    if(!!rowHeights[index] && rowHeights[index] != height){
+      rowHeights[index] = height;
+    }else{
+      rowHeights.push(height);
+    }
     this.setState({rowHeights});
   }
   handleChangeMessage({target}){
@@ -102,6 +106,7 @@ class Chat extends Component {
       chatName: this.props.match.params.chat,
       message
     });
+
     this.setState({entities, messages, message: ''})
   }
   render() {

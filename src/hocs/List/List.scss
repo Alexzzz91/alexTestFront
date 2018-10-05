@@ -18,7 +18,7 @@
   overflow: auto;
 }
 
-.st-panel-row{
+.panel-row{
   &._ghost{
     .ghost{
       display: flex;
@@ -36,7 +36,7 @@
         margin-right: 16px;
       }
     }
-    .st-prospect__col._no_pd{
+    .prospect__col._no_pd{
       padding-right: 0px;
       justify-content: flex-start;
       max-width: 42px;
@@ -44,7 +44,7 @@
         margin-right: 0px;
       }
     }
-    .st-panel-row__actions{
+    .panel-row__actions{
       &._popover{
         .ghost{
           border-radius: 3px;
