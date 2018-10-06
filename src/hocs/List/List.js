@@ -44,10 +44,27 @@ class CommonList extends PureComponent {
   }
   componentDidUpdate(prevProps, prevState){
     const { listHeight } = this.state;
-    const newHeight = this.props.rowHeights.reduce((a, b) => a + b, 0);
+    let newHeight = listHeight;
+
+    if(this.props.rowHeights != prevProps.rowHeights){
+      newHeight = this.props.rowHeights.reduce((a, b) => a + b, 0);
+    }
+
     if(!!prevState.entitiesLenght && this.state.entitiesLenght < this.props.messages.length){
       this.setState({entitiesLenght:this.props.messages.length});
       this.listRefresh(newHeight - this.state.sevedHeight + this.state.scrollTop);
+    }
+
+    if(prevProps.target != this.props.target){
+      const rowHeightIndex = this.props.messages.findIndex(e => e==this.props.target);
+      if(rowHeightIndex != -1 && rowHeightIndex-1 != -1 ){
+        const { rowHeights } = this.props;
+        let newRowHeights = [...rowHeights];
+        const scrollTopArray = newRowHeights.splice(rowHeightIndex+1,this.props.rowHeights.length-1)
+
+        const scrollTop = scrollTopArray.reduce((a, b) => a + b, 0);
+        this.listRefresh(scrollTop);
+      };
     }
 
     if(listHeight !== newHeight){
@@ -97,13 +114,13 @@ class CommonList extends PureComponent {
         containerWidth:this.container.current.offsetWidth
       });
       this.scrollbar.current.scrollToBottom();
-      !!this.list.current.list && this.list.current.list.refresh();
+      this.listRefresh()
     }
   }
   isRowLoaded (index) {
     const { entities } = this.props;
     if(entities[index] === undefined && this.state.isLoaded) {
-      this.loadMoreRows();
+      //this.loadMoreRows();
     }
     return entities[index] !== undefined;
   }

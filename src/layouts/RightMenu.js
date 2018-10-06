@@ -9,7 +9,7 @@ import { ChatContext } from '../routes/Chat/Chat'
 
 const RightMenu = ({ component: Component, ...rest }) => (
   <ChatContext.Consumer>
-    {({chats, selectChat, loadMore}) => {
+    {({chats, selectChat, loadMore, entities, setTarget}) => {
     return (
       <div className={s.RightMenu}>
         RightMenu
@@ -22,9 +22,15 @@ const RightMenu = ({ component: Component, ...rest }) => (
             </Link>
           ) )}
         </ul>
-        <button onClick={() => loadMore()}>
+        <button onClick={loadMore}>
           loadMore
         </button>
+          <input type="range"
+                 name="mesage"
+                 min="0"
+                 max={Object.keys(entities).length-1}
+                 onChange={(e) => setTarget(e.target.value)}/>
+
       </div>
     )
   }}

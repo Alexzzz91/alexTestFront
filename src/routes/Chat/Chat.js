@@ -31,6 +31,7 @@ class Chat extends Component {
     this.loadChats = this.loadChats.bind(this);
     this.updateRowHeight = this.updateRowHeight.bind(this);
     this.handleChangeMessage = this.handleChangeMessage.bind(this);
+    this.setTargetMesage = this.setTargetMesage.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
   componentDidMount(){
@@ -89,6 +90,17 @@ class Chat extends Component {
   handleChangeMessage({target}){
     this.setState({message: target.value})
   }
+  setTargetMesage(target){
+    let res;
+    Object.keys(this.state.entities).forEach((element, i) => {
+      if (target == i){
+        res = this.state.entities[element].id;
+      }
+    });
+    const {chat} = this.props.match.params;
+    this.props.history.push(`/${chat}/${res}`);
+    this.setState({target:res})
+  }
   handleSubmit(e){
     e.preventDefault()
     let { entities, messages } = this.state;
@@ -113,7 +125,15 @@ class Chat extends Component {
     const { match } = this.props;
     const { chats, messages, entities, total, loading, rowHeights, target, message } = this.state;
     return(
-      <ChatContext.Provider value={{ chats, entities, total, rowHeights, updateRowHeight:this.updateRowHeight, loadMore: () => this.loadChat(match.params.chat, Object.keys(entities).length)}}>
+      <ChatContext.Provider value={{ chats,
+                                     entities,
+                                     total,
+                                     rowHeights,
+                                     updateRowHeight:this.updateRowHeight,
+                                     loadMore: () => this.loadChat(match.params.chat, Object.keys(entities).length),
+                                     setTarget: target => this.setTargetMesage(target)
+                                   }}
+                                     >
         <MainLayout>
           <List chatName={match.params.chat}
                 total={total}
