@@ -44,15 +44,11 @@ class CommonList extends PureComponent {
   }
   componentDidUpdate(prevProps, prevState){
     const { listHeight } = this.state;
-    let newHeight = listHeight;
-
-    if(this.props.rowHeights != prevProps.rowHeights){
-      newHeight = this.props.rowHeights.reduce((a, b) => a + b, 0);
-    }
+    let newHeight = this.props.rowHeights.reduce((a, b) => a + b, 0);
 
     if(!!prevState.entitiesLenght && this.state.entitiesLenght < this.props.messages.length){
       this.setState({entitiesLenght:this.props.messages.length});
-      this.listRefresh(newHeight - this.state.sevedHeight + this.state.scrollTop);
+      this.listRefresh((newHeight - this.state.sevedHeight) + this.state.scrollTop);
     }
 
     if(prevProps.target != this.props.target){
@@ -97,7 +93,6 @@ class CommonList extends PureComponent {
   }
 
   listRefresh(scrollTop){
-    //console.log('listRefresh scrollTop', scrollTop)
     if(!!scrollTop){
       this.scrollbar.current.scrollTop(scrollTop);
       this.list.current.wrapperNode.scrollTop = scrollTop;
@@ -120,7 +115,7 @@ class CommonList extends PureComponent {
   isRowLoaded (index) {
     const { entities } = this.props;
     if(entities[index] === undefined && this.state.isLoaded) {
-      //this.loadMoreRows();
+      this.loadMoreRows();
     }
     return entities[index] !== undefined;
   }
@@ -170,8 +165,6 @@ class CommonList extends PureComponent {
   }
   render() {
     const { className = s.list, total, entities, messages, rowHeights} = this.props;
-    // console.log(this.state.scrollTop);
-    // console.log('this.state', this.state);
     return(
       <ChatContext.Consumer>
         {context => (
