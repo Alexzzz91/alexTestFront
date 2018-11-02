@@ -10,6 +10,8 @@ import config from '../../../config.json'
 
 import openSocket from 'socket.io-client'
 
+import s from  './Chat.scss'
+
 export const ChatContext = React.createContext();
 
 class Chat extends Component {
@@ -24,7 +26,7 @@ class Chat extends Component {
       entities:{},
       target: null,
       messages: [],
-      total: null
+      total: 0
     };
     this.socket = openSocket(`http://localhost:${config.serverPort}`);
     this.state = state;
@@ -51,6 +53,9 @@ class Chat extends Component {
       })
       this.loadChat(this.props.match.params.chat);
     }
+    setInterval(() => {
+      this.loadChat(this.props.match.params.chat, Object.keys(this.state.entities).length)
+    }, 1000)
   }
   loadChats(){
     return axios.get(`http://localhost:${config.serverPort}/chats`)
@@ -59,15 +64,15 @@ class Chat extends Component {
         if(!this.props.match.params.chat) this.props.history.push(data[0]);
       })
   }
-  loadChat(chat, offset=0, limit=55){
+  loadChat(chat, offset=0, limit=3){
     if(!!this.state.loading) return;
     this.setState({loading:true})
       axios.post(`http://localhost:${config.serverPort}/get_messages`, {chat, limit, offset})
       .then(({data}) => {
         const { messages, total } = data;
-        let entities = {}, array = this.state.messages;
+        let entities = {}, array = [ ...this.state.messages ]
         for (var i = 1; i < messages.length; i++) {
-          array.push(messages[i].id);
+          array.unshift(messages[i].id);
           entities[messages[i].id] = messages[i]
         }
         const stateEntities = this.state.entities
@@ -114,7 +119,7 @@ class Chat extends Component {
     }
     entities[messages[0]+1] = messageObj;
     messages.unshift(messages[0]+1);
-    this.socket && this.socket.emit && this.qsocket.emit('message', {
+    this.socket && this.socket.emit && this.socket.emit('message', {
       chatName: this.props.match.params.chat,
       messageObj
     });
@@ -128,6 +133,7 @@ class Chat extends Component {
       <ChatContext.Provider value={{ chats,
                                      entities,
                                      total,
+                                     target,
                                      rowHeights,
                                      updateRowHeight:this.updateRowHeight,
                                      loadMore: () => this.loadChat(match.params.chat, Object.keys(entities).length),
@@ -145,7 +151,9 @@ class Chat extends Component {
                 loadMore={() => this.loadChat(match.params.chat, Object.keys(entities).length)}/>
           <form className="form" onSubmit={this.handleSubmit}>
             <button>Smileys</button>
-            <input value={message} onChange={this.handleChangeMessage}/>
+            <input value={message}
+                   className={s.formInput}
+                   onChange={this.handleChangeMessage}/>
             <button role='submit'>Send</button>
           </form>
           {!!loading &&

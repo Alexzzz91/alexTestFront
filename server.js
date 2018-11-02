@@ -71,7 +71,7 @@ async function createMessages(){
       messages: []
     }
     let seconds = 0;
-    for (let j = 0; j < getRandomInt(worldsArray.length*50, (worldsArray.length-1)*500); j++) {
+    for (let j = getRandomInt(worldsArray.length*50, (worldsArray.length-1)*500); j > 0 ; j--) {
       let msg = {
         id: j,
         autor: getRandomInt(0, 4) > 2 ? 'alk' : 'no alk',
@@ -83,6 +83,7 @@ async function createMessages(){
 
       if(getRandomInt(0, 5) > 3) seconds = seconds+15;
       if(getRandomInt(0, 8) >= 6) seconds = seconds+10;
+      if(getRandomInt(0, 12) >= 9) seconds = seconds+86400;
       seconds++;
       msg.text += worldsArray[getRandomInt(1, worldsArray.length-1)];
       for (let m = 0; m < getRandomInt(1, worldsArray.length/4); m++) {
@@ -91,7 +92,7 @@ async function createMessages(){
 
       el.messages.push(msg);
     }
-    el.messages = el.messages.reverse();
+
     obj.chats.push(el)
   }
 

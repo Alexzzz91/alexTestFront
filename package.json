@@ -8,20 +8,19 @@
   },
   "license": "MIT",
   "devDependencies": {
-    "@pawjs/pawjs": "^2.1.10"
+    "@pawjs/pawjs": "^2.1.10",
+    "merge": ">=1.2.1"
   },
   "dependencies": {
     "@pawjs/sass": "^2.1.7",
     "axios": "^0.18.0",
     "classnames": "^2.2.6",
     "cors": "^2.8.4",
-    "hyperlist": "^1.0.0-beta",
     "lodash ": "^4.17.11",
     "moment": "^2.22.2",
-    "react-bidirectional-infinite-scroll": "^2.0.1",
     "react-custom-scrollbars": "^4.2.1",
     "react-faux-dom": "^4.2.0",
-    "react-hyperlist": "^1.0.0-alpha.1",
+    "react-virtualized": "^9.20.1",
     "react-visibility-sensor": "^4.1.1",
     "socket.io": "^2.1.1",
     "socket.io-client": "^2.1.1"

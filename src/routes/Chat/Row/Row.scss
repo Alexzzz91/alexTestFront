@@ -3,7 +3,7 @@
   min-width: 100%;
   border-left: 0px;
   border-right: 0px;
-  transition: 0.4s;
+  transition: 0.2s;
   background: white;
   border: 0px solid transparent;
   &:hover{
@@ -11,6 +11,7 @@
   }
   &Inner{
     padding: 4px 8px;
+    display: flex;
   }
   &Open{
     .rowInner{
@@ -28,23 +29,40 @@
     align-items: center;
     justify-content: space-between;
     &._left{
-      justify-content: flex-start;
+      position: relative;
+      flex-direction: column;
+      min-width: 85px;
+      align-items: flex-start;
+      justify-content: center;
       border-bottom: 1px solid red;
+      ._index{
+        right: 0;
+      }
     }
     &._right{
-      justify-content: flex-end;
+      position: relative;
+      flex-direction: column;
+      min-width: 85px;
+      align-items: flex-end;
+      justify-content: center;
       border-bottom: 1px solid blue;
+      ._index{
+        left: 0;
+      }
     }
     &Left{
 
     }
     &Col{
+      padding: 0 4px;
       &._index{
-      margin: 0 16px;
+        position: absolute;
+        margin-right: 0 16px;
       }
     }
   }
   .text{
+    font-size: 10px;
     &.time{
       font-weight: bold;
     }
@@ -52,7 +70,7 @@
   &HideTime{
     .text{
       &.time{
-        transition: 0.4s;
+        transition: 0.2s;
         opacity: 0;
       }
     }

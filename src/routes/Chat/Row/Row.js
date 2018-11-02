@@ -26,16 +26,15 @@ class Row extends PureComponent {
   }
   componentDidUpdate(){
     const { height } = this.state;
-    const { prevousMsg, nextMsg, msg } = this.props;
+    const { prevousMsg, nextMsg, msg, index } = this.props;
     const someAutor = !!prevousMsg && prevousMsg.autor === msg.autor;
     const showDateTitle = !!prevousMsg && moment.unix(prevousMsg.time).format("MM/DD/YYYY") !== moment.unix(msg.time).format("MM/DD/YYYY");
-    const showTime = !!prevousMsg && (prevousMsg.time - msg.time) > 15;
-
+    const showTime = !!prevousMsg && (msg.time - prevousMsg.time) > 15 || index == 0;
 
     this.setState({someAutor, showDateTitle, showTime});
     let offsetHeight = this.inner.current.offsetHeight;
     if(showDateTitle) offsetHeight = offsetHeight+36;
-    if(offsetHeight != this.row.current.offsetHeight || height != offsetHeight || height == 0) this.updateHeight()
+    if(height != offsetHeight || height == 0) this.updateHeight()
   }
 
   updateHeight(){
@@ -50,7 +49,7 @@ class Row extends PureComponent {
   }
   render(){
     const { isOpen, showDateTitle, someAutor, showTime } = this.state;
-    const { style, msg, rowHeights, index, prevousMsg, nextMsg } = this.props;
+    const { style, msg, index, prevousMsg, nextMsg } = this.props;
     return (
         <div className={cn(s.row,{[s.rowOpen]:isOpen, [s.rowHideTime]: !showTime && someAutor})}
              style={style}
@@ -63,13 +62,13 @@ class Row extends PureComponent {
           }
           <div className={s.rowInner} ref={this.inner}>
             <div className={cn(s.rowRow, {[s._left]: msg.autor === "no alk", [s._right]: msg.autor === "alk"})}>
-              <div className={s.rowRowLeft}>
-               msg.id:{msg.id} - index:{index}
+              <div>
+               <div className={`${s.text} ${s.time}`}>index:{index}</div>
               </div>
               <div className={`${s.rowRowCol} ${s._index}`}>
-                { (!someAutor || showTime) && msg.autor }
+                <div className={`${s.text} ${s.time}`}>{ (!someAutor || showTime) && msg.autor }</div>
               </div>
-              <div className={`${s.rowRowCol}`}>
+              <div>
                 <div className={`${s.text} ${s.time}`} role="button"> {moment.unix(msg.time).format("h:mm:ss a")} </div>
               </div>
             </div>
